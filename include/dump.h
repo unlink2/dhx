@@ -16,6 +16,7 @@ void close(FILE *f);
 
 void dump_byte(Config *c, FILE *in, FILE *out, usize address, u8 b);
 void dump_char(Config *c, FILE *in, FILE *out, usize address, u8 b);
+void dump_char_raw(Config *c, FILE *in, FILE *out, usize address, u8 b);
 
 void dump(Config *c, FILE *in, FILE *out, DumpMode f);
 

@@ -6,7 +6,7 @@ SclAlloc alloc;
 
 Config config_init() {
   Config c = {NULL, 0, addr_list_init(), addr_list_init(), "\x1b[7m", "\x1b[0m",
-              16, dump_byte, OK};
+              FALSE, 16, dump_byte, " ", OK};
   alloc = scl_alloc_init(malloc, free);
   return c;
 }

@@ -17,10 +17,14 @@ typedef struct Config {
 
   char *highlight;
   char *unhighlight;
+  
+  bool no_addr;
 
   usize rowlen;
 
   DumpMode mode;
+
+  char *separator;
 
   Error err;
 } Config;

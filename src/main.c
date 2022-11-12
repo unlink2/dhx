@@ -20,12 +20,21 @@ const char *argp_program_bug_address = "<lukas@krickl.dev>";
 static char doc[] = "stvi";
 static char args_doc[] = "Stack Dump Visualizer";
 
+typedef enum LongOptions {
+  RAW_OUT = 128,
+  NO_ADDRESS,
+  SEPARATOR,
+} LongOptions;
+
 static struct argp_option options[] = {
     {"address", 'a', "ADDRESS", 0, "Address to filter for"},
     {"frame", 's', "ADDRESS", 0, "Frame separator address"},
     {"base", 'b', "BASE", 0, "Set base address of dump"},
     {"highlight", 'c', "HIGHLIGHT", 0, "Set highlight escape code"},
     {"ascii", 't', NULL, 0, "Output ascii"},
+    {"raw", RAW_OUT, NULL, 0, "Output each byte unencoded"},
+    {"no-addr", NO_ADDRESS, NULL, 0, "Do not display addresses"},
+    {"separator", SEPARATOR, "SEPARATOR", 0, "Byte separator"},
     {"unhighlight", 'u', "UNHIGHLIGHT", 0, "Set unhighlight escape code"},
     {"rowlen", 'r', "ROWLEN", 0, "How many bytes to display in each row"},
     {0}};
@@ -66,6 +75,15 @@ static error_t parse_opt(int key, char *arg,
   case 'r':
     cfg->rowlen =
         str_to_i64(str_init(arg, scl_strlen(arg)), 10, (SclError *)&cfg->err);
+    break;
+  case RAW_OUT:
+    cfg->mode = dump_char_raw;
+    break;
+  case NO_ADDRESS:
+    cfg->no_addr = TRUE;
+    break;
+  case SEPARATOR:
+    cfg->separator = arg;
     break;
   case ARGP_KEY_ARG:
     if (state->arg_num > 0) {
