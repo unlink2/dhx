@@ -1,6 +1,10 @@
 /**
  * When built without test
  */
+#include "scl/sclstr.h"
+#include <scl/scllog.h>
+#include "dump.h"
+
 #ifndef TEST
 
 /// only use main if binary
@@ -18,8 +22,11 @@ static char args_doc[] = "Stack Dump Visualizer";
 
 static struct argp_option options[] = {
     {"address", 'a', "ADDRESS", 0, "Address to filter for"},
+    {"frame", 's', "ADDRESS", 0, "Frame separator address"},
     {"base", 'b', "BASE", 0, "Set base address of dump"},
     {"highlight", 'c', "HIGHLIGHT", 0, "Set highlight escape code"},
+    {"ascii", 't', NULL, 0, "Output ascii"},
+    {"unhighlight", 'u', "UNHIGHLIGHT", 0, "Set unhighlight escape code"},
     {"rowlen", 'r', "ROWLEN", 0, "How many bytes to display in each row"},
     {0}};
 
@@ -28,23 +35,48 @@ static error_t parse_opt(int key, char *arg,
   Config *cfg = state->input;
 
   switch (key) {
-  case 'a':
+  case 'a': {
+    SclError err = SCL_OK;
+    usize addr = str_to_i64(str_init(arg, scl_strlen(arg)), 16, &err);
+
+    addr_list_add(&cfg->addrs, addr);
+
+    cfg->err = (Error)err;
+  } break;
+  case 's':
+    addr_list_add(&cfg->frames, str_to_i64(str_init(arg, scl_strlen(arg)), 16,
+                                           (SclError *)&cfg->err));
     break;
-  case 'b':
+  case 'b': {
+    SclError err = SCL_OK;
+    usize addr = str_to_i64(str_init(arg, scl_strlen(arg)), 16, &err);
+
+    cfg->base_addr = addr;
+
+    cfg->err = (Error)err;
+  } break;
+  case 't':
+    cfg->mode = dump_char;
+  case 'u':
+    cfg->unhighlight = arg;
     break;
   case 'c':
+    cfg->highlight = arg;
+    break;
+  case 'r':
+    cfg->rowlen =
+        str_to_i64(str_init(arg, scl_strlen(arg)), 10, (SclError *)&cfg->err);
     break;
   case ARGP_KEY_ARG:
     if (state->arg_num > 0) {
       // Too many arguments
       argp_usage(state); // NOLINT
     } else {
-      // parse file input or stdin
-      // cfg->err |= bk_find(cfg->input, arg, &cfg->rl);
+      cfg->in_path = arg;
     }
     break;
   case ARGP_KEY_END:
-    if (state->arg_num < 1) {
+    if (state->arg_num < 0) {
       /* Not enough arguments. */
       argp_usage(state); // NOLINT
     }
@@ -60,6 +92,23 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 int main(int argc, char **argv) {
   config = config_init();
   argp_parse(&argp, argc, argv, 0, 0, &config); // NOLINT
+
+  FILE *in = open_input(config.in_path);
+  FILE *out = open_output(NULL);
+
+  if (!in || !out) {
+    config.err = ERR_FILE_NOT_FOUND;
+  }
+
+  if (config.err) {
+    char *err_str = error_to_string(config.err);
+    scl_log_output("%s\n", err_str);
+  } else {
+    dump(&config, in, out, config.mode);
+  }
+
+  close(in);
+  close(out);
 
   config_free(&config);
 

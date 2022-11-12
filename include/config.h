@@ -2,9 +2,26 @@
 #define CONFIG_H_
 
 #include <scl/sclalloc.h>
+#include "addrlst.h"
 #include "error.h"
+#include "dump.h"
+
 
 typedef struct Config {
+  char *in_path;
+
+  usize base_addr;
+
+  AddrList addrs;
+  AddrList frames;
+
+  char *highlight;
+  char *unhighlight;
+
+  usize rowlen;
+
+  DumpMode mode;
+
   Error err;
 } Config;
 
