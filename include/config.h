@@ -6,6 +6,14 @@
 #include "error.h"
 #include "dump.h"
 
+typedef enum Endianess { END_LITTLE, END_BIG } Endianess;
+
+Endianess end_map(const char *inp);
+
+typedef enum OutputGroup { OG_1, OG_2, OG_4, OG_8 } OutputGroup;
+
+OutputGroup og_map(const char *inp);
+
 typedef struct Config {
   char *in_path;
 
@@ -27,6 +35,9 @@ typedef struct Config {
   char *separator;
 
   u8 *buffer;
+
+  Endianess endianess;
+  OutputGroup output_grp;
 
   Error err;
 } Config;

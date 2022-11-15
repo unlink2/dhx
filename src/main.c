@@ -38,7 +38,11 @@ static struct argp_option options[] = {
     {"separator", SEPARATOR, "SEPARATOR", 0, "Byte separator"},
     {"prefix", PREFIX, "PREFIX", 0, "Byte prefix"},
     {"unhighlight", 'u', "UNHIGHLIGHT", 0, "Set unhighlight escape code"},
-    {"rowlen", 'r', "ROWLEN", 0, "How many bytes to display in each row"},
+    {"rowlen", 'r', "ROWLEN", 0,
+     "How many bytes to display in each row (little, big)"},
+    {"endianess", 'e', "ENDIANESS", 0, "Set file endianess"},
+    {"loglevel", 'l', "LEVEL", 0, "Log level"},
+    {"group", 'g', "GROUP", 0, "How many bytes to group together (1, 2, 4, 8)"},
     {0}};
 
 static error_t parse_opt(int key, char *arg,
@@ -90,6 +94,16 @@ static error_t parse_opt(int key, char *arg,
     break;
   case PREFIX:
     cfg->prefix = arg;
+    break;
+  case 'l':
+    scl_log_set_level(
+        str_to_i64(str_init(arg, scl_strlen(arg)), 10, (SclError *)&cfg->err));
+    break;
+  case 'e':
+    cfg->endianess = end_map(arg);
+    break;
+  case 'g':
+    cfg->output_grp = og_map(arg);
     break;
   case ARGP_KEY_ARG:
     if (state->arg_num > 0) {
