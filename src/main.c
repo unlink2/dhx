@@ -20,20 +20,13 @@ const char *argp_program_bug_address = "<lukas@krickl.dev>";
 static char doc[] = "stvi";
 static char args_doc[] = "Stack Dump Visualizer";
 
-typedef enum LongOptions {
-  RAW_OUT = 128,
-  NO_ADDRESS,
-  SEPARATOR,
-  PREFIX
-} LongOptions;
+typedef enum LongOptions { NO_ADDRESS = 128, SEPARATOR, PREFIX } LongOptions;
 
 static struct argp_option options[] = {
     {"address", 'a', "ADDRESS", 0, "Address to filter for"},
     {"frame", 's', "ADDRESS", 0, "Frame separator address"},
     {"base", 'b', "BASE", 0, "Set base address of dump"},
     {"highlight", 'c', "HIGHLIGHT", 0, "Set highlight escape code"},
-    {"ascii", 't', NULL, 0, "Output ascii"},
-    {"raw", RAW_OUT, NULL, 0, "Output each byte unencoded"},
     {"no-addr", NO_ADDRESS, NULL, 0, "Do not display addresses"},
     {"separator", SEPARATOR, "SEPARATOR", 0, "Byte separator"},
     {"prefix", PREFIX, "PREFIX", 0, "Byte prefix"},
@@ -42,13 +35,13 @@ static struct argp_option options[] = {
      "How many bytes to display in each row (little, big)"},
     {"endianess", 'e', "ENDIANESS", 0, "Set file endianess"},
     {"loglevel", 'l', "LEVEL", 0, "Log level"},
-    {"group", 'g', "GROUP", 0, "How many bytes to group together (1, 2, 4, 8)"},
+    {"group", 'g', "GROUP", 0,
+     "How many bytes to group together (1, 2, 4, 8, c, r)"},
     {0}};
 
 static error_t parse_opt(int key, char *arg,
                          struct argp_state *state) { // NOLINT
   Config *cfg = state->input;
-
   switch (key) {
   case 'a': {
     SclError err = SCL_OK;
@@ -70,9 +63,6 @@ static error_t parse_opt(int key, char *arg,
 
     cfg->err = (Error)err;
   } break;
-  case 't':
-    cfg->mode = dump_char;
-    break;
   case 'u':
     cfg->unhighlight = arg;
     break;
@@ -82,9 +72,6 @@ static error_t parse_opt(int key, char *arg,
   case 'r':
     config_set_rowlen(cfg, str_to_i64(str_init(arg, scl_strlen(arg)), 10,
                                       (SclError *)&cfg->err));
-    break;
-  case RAW_OUT:
-    cfg->mode = dump_char_raw;
     break;
   case NO_ADDRESS:
     cfg->no_addr = TRUE;
@@ -103,7 +90,7 @@ static error_t parse_opt(int key, char *arg,
     cfg->endianess = end_map(arg);
     break;
   case 'g':
-    cfg->output_grp = og_map(arg);
+    config_apply_mode(cfg, og_map(arg));
     break;
   case ARGP_KEY_ARG:
     if (state->arg_num > 0) {

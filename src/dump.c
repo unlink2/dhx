@@ -26,7 +26,7 @@ void close(FILE *f) {
 usize dump_gp1(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
                usize len) {
   u8 fb = b[0];
-  fprintf(out, "%02x", fb);
+  fprintf(out, c->out_fmt, fb);
 
   return 1;
 }
@@ -43,7 +43,7 @@ usize dump_gp2(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   } else if (c->endianess == END_BIG) {
     fb = htobe16(fb);
   }
-  fprintf(out, "%04x", fb);
+  fprintf(out, c->out_fmt, fb);
 
   return 2;
 }
@@ -61,7 +61,7 @@ usize dump_gp4(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
     fb = htobe32(fb);
   }
 
-  fprintf(out, "%08x", fb);
+  fprintf(out, c->out_fmt, fb);
 
   return 4;
 }
@@ -78,7 +78,7 @@ usize dump_gp8(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   } else if (c->endianess == END_BIG) {
     fb = htobe64(fb);
   }
-  fprintf(out, "%016llx", fb);
+  fprintf(out, c->out_fmt, fb);
 
   return 8;
 }
@@ -107,7 +107,7 @@ usize dump_char_adv(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
     fb = '.';
   }
 
-  fprintf(out, "%c", fb);
+  fprintf(out, c->out_fmt, fb);
   return 1;
 }
 
@@ -130,7 +130,7 @@ void dump_addr_label(Config *c, FILE *out, usize address, usize *rowlen) {
       // only add a new line when we are not at the beginning
       fprintf(out, "\n");
     }
-    fprintf(out, "%08zx\t", address);
+    fprintf(out, "%08zx%s", address, c->separator);
   }
 }
 

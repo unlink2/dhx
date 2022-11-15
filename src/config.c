@@ -27,6 +27,10 @@ OutputGroup og_map(const char *inp) {
     return OG_4;
   } else if (strncmp(inp, "8", scl_strlen("8")) == 0) {
     return OG_8;
+  } else if (strncmp(inp, "c", scl_strlen("c")) == 0) {
+    return OG_CHAR;
+  } else if (strncmp(inp, "r", scl_strlen("r")) == 0) {
+    return OG_RAW;
   }
 
   scl_log_error("Unknown output group: %s. Defaulting to 1!\n", inp);
@@ -48,6 +52,7 @@ Config config_init() {
               "",
               " ",
               malloc(default_row_len),
+              OUT_FMT_8,
               END_NATIVE,
               OG_1,
               OK};
@@ -60,6 +65,35 @@ void config_set_rowlen(Config *c, usize len) {
   alloc.free(c->buffer);
   c->buffer = malloc(len);
   c->rowlen = len;
+}
+
+void config_apply_mode(Config *c, OutputGroup g) {
+  c->output_grp = g;
+  c->mode = dump_byte;
+  switch (g) {
+  case OG_CHAR:
+    c->mode = dump_char;
+    c->out_fmt = OUT_FMT_C;
+    break;
+  case OG_RAW:
+    c->mode = dump_char_raw;
+    c->out_fmt = OUT_FMT_R;
+    break;
+  case OG_1:
+    c->out_fmt = OUT_FMT_8;
+    break;
+  case OG_2:
+    c->out_fmt = OUT_FMT_16;
+    break;
+  case OG_4:
+    c->out_fmt = OUT_FMT_32;
+    break;
+  case OG_8:
+    c->out_fmt = OUT_FMT_64;
+    break;
+  default:
+    break;
+  }
 }
 
 void config_free(Config *c) {
