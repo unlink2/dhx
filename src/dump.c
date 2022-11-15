@@ -86,13 +86,17 @@ usize dump_gp8(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
 usize dump_byte(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
                 usize len) {
   switch (c->output_grp) {
-  case OG_2:
+  case OG_2H:
+  case OG_2D:
     return dump_gp2(c, in, out, address, b, len);
-  case OG_4:
+  case OG_4H:
+  case OG_4D:
     return dump_gp4(c, in, out, address, b, len);
-  case OG_8:
+  case OG_8H:
+  case OG_8D:
     return dump_gp8(c, in, out, address, b, len);
-  case OG_1:
+  case OG_1H:
+  case OG_1D:
   default:
     return dump_gp1(c, in, out, address, b, len);
   }

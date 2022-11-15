@@ -6,22 +6,39 @@
 #include "error.h"
 #include "dump.h"
 
-#define OUT_FMT_8 "%02x"
-#define OUT_FMT_16 "%04x"
-#define OUT_FMT_32 "%08x"
-#define OUT_FMT_64 "%016llx"
+#define OUT_FMT_8H "%02x"
+#define OUT_FMT_16H "%04x"
+#define OUT_FMT_32H "%08x"
+#define OUT_FMT_64H "%016llx"
 #define OUT_FMT_C "%c"
 #define OUT_FMT_R "%c"
+
+#define OUT_FMT_1D "%03d"
+#define OUT_FMT_2D "%05d"
+#define OUT_FMT_4D "%010ld"
+#define OUT_FMT_8D "%020lld"
 
 typedef enum Endianess { END_LITTLE, END_BIG, END_NATIVE } Endianess;
 
 Endianess end_map(const char *inp);
 
 typedef enum OutputGroup {
-  OG_1,
-  OG_2,
-  OG_4,
-  OG_8,
+  OG_1H,
+  OG_1D,
+  // OG_1B,
+
+  OG_2H,
+  OG_2D,
+  // OG_2B,
+
+  OG_4H,
+  OG_4D,
+  // OG_4B,
+
+  OG_8H,
+  OG_8D,
+  // OG_8B,
+
   OG_CHAR,
   OG_RAW
 } OutputGroup;

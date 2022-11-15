@@ -36,7 +36,8 @@ static struct argp_option options[] = {
     {"endianess", 'e', "ENDIANESS", 0, "Set file endianess"},
     {"loglevel", 'l', "LEVEL", 0, "Log level"},
     {"group", 'g', "GROUP", 0,
-     "How many bytes to group together (1, 2, 4, 8, c, r)"},
+     "How to group and format output bytes (1h, 1d, 2h, 2d, 4h, 4d, "
+     "8h, 8d, c, r)"},
     {0}};
 
 static error_t parse_opt(int key, char *arg,

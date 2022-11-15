@@ -19,22 +19,38 @@ Endianess end_map(const char *inp) {
 }
 
 OutputGroup og_map(const char *inp) {
-  if (strncmp(inp, "1", scl_strlen("1")) == 0) {
-    return OG_1;
-  } else if (strncmp(inp, "2", scl_strlen("2")) == 0) {
-    return OG_2;
-  } else if (strncmp(inp, "4", scl_strlen("4")) == 0) {
-    return OG_4;
-  } else if (strncmp(inp, "8", scl_strlen("8")) == 0) {
-    return OG_8;
+  if (strncmp(inp, "1h", scl_strlen("1h")) == 0) {
+    return OG_1H;
+  } else if (strncmp(inp, "2h", scl_strlen("2h")) == 0) {
+    return OG_2H;
+  } else if (strncmp(inp, "4h", scl_strlen("4h")) == 0) {
+    return OG_4H;
+  } else if (strncmp(inp, "8h", scl_strlen("8h")) == 0) {
+    return OG_8H;
+  } else if (strncmp(inp, "1d", scl_strlen("1d")) == 0) {
+    return OG_1D;
+  } else if (strncmp(inp, "2d", scl_strlen("2d")) == 0) {
+    return OG_2D;
+  } else if (strncmp(inp, "4d", scl_strlen("4d")) == 0) {
+    return OG_4D;
+  } else if (strncmp(inp, "8d", scl_strlen("8d")) == 0) {
+    return OG_8D;
   } else if (strncmp(inp, "c", scl_strlen("c")) == 0) {
     return OG_CHAR;
   } else if (strncmp(inp, "r", scl_strlen("r")) == 0) {
     return OG_RAW;
-  }
+  } /* else if (strncmp(inp, "1b", scl_strlen("1b")) == 0) {
+    return OG_1B;
+  } else if (strncmp(inp, "2b", scl_strlen("2b")) == 0) {
+    return OG_2B;
+  } else if (strncmp(inp, "4b", scl_strlen("4b")) == 0) {
+    return OG_4B;
+  } else if (strncmp(inp, "8b", scl_strlen("8b")) == 0) {
+    return OG_8B;
+  }*/
 
   scl_log_error("Unknown output group: %s. Defaulting to 1!\n", inp);
-  return OG_1;
+  return OG_1H;
 }
 
 #define default_row_len 16
@@ -52,9 +68,9 @@ Config config_init() {
               "",
               " ",
               malloc(default_row_len),
-              OUT_FMT_8,
+              OUT_FMT_8H,
               END_NATIVE,
-              OG_1,
+              OG_1H,
               OK};
   alloc = scl_alloc_init(malloc, free);
 
@@ -79,17 +95,29 @@ void config_apply_mode(Config *c, OutputGroup g) {
     c->mode = dump_char_raw;
     c->out_fmt = OUT_FMT_R;
     break;
-  case OG_1:
-    c->out_fmt = OUT_FMT_8;
+  case OG_1H:
+    c->out_fmt = OUT_FMT_8H;
     break;
-  case OG_2:
-    c->out_fmt = OUT_FMT_16;
+  case OG_2H:
+    c->out_fmt = OUT_FMT_16H;
     break;
-  case OG_4:
-    c->out_fmt = OUT_FMT_32;
+  case OG_4H:
+    c->out_fmt = OUT_FMT_32H;
     break;
-  case OG_8:
-    c->out_fmt = OUT_FMT_64;
+  case OG_8H:
+    c->out_fmt = OUT_FMT_64H;
+    break;
+  case OG_1D:
+    c->out_fmt = OUT_FMT_1D;
+    break;
+  case OG_2D:
+    c->out_fmt = OUT_FMT_2D;
+    break;
+  case OG_4D:
+    c->out_fmt = OUT_FMT_4D;
+    break;
+  case OG_8D:
+    c->out_fmt = OUT_FMT_8D;
     break;
   default:
     break;
