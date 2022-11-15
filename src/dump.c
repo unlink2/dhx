@@ -22,33 +22,37 @@ void close(FILE *f) {
   }
 }
 
-void dump_byte(Config *c, FILE *in, FILE *out, usize address, u8 b) {
+usize dump_byte(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len) {
+  u8 fb = b[0];
   if (addr_list_contains(&c->addrs, address)) {
-    fprintf(out, "%s%02x%s", c->highlight, b, c->unhighlight);
+    fprintf(out, "%s%02x%s", c->highlight, fb, c->unhighlight);
   } else {
-    fprintf(out, "%02x", b);
+    fprintf(out, "%02x", fb);
   }
+
+  return 1;
 }
 
-void dump_char_adv(Config *c, FILE *in, FILE *out, usize address, u8 b, bool raw) {
-  if (!isprint(b) && !raw) {
-    b = '.';
+usize dump_char_adv(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len, bool raw) {
+  char fb = b[0];
+  if (!isprint(fb) && !raw) {
+    fb = '.';
   }
 
   if (addr_list_contains(&c->addrs, address)) {
-    fprintf(out, "%s%c%s", c->highlight, b, c->unhighlight);
+    fprintf(out, "%s%c%s", c->highlight, fb, c->unhighlight);
   } else {
-    fprintf(out, "%c", b);
+    fprintf(out, "%c", fb);
   }
-
+  return 1;
 }
 
-void dump_char(Config *c, FILE *in, FILE *out, usize address, u8 b) {
-  dump_char_adv(c, in, out, address, b, FALSE);
+usize dump_char(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len) {
+  return dump_char_adv(c, in, out, address, b, len, FALSE);
 }
 
-void dump_char_raw(Config *c, FILE *in, FILE *out, usize address, u8 b) {
-  dump_char_adv(c, in, out, address, b, TRUE);
+usize dump_char_raw(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len) {
+  return dump_char_adv(c, in, out, address, b, len, TRUE);
 }
 
 u32 dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f) {
@@ -58,7 +62,8 @@ u32 dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f) {
   u32 b = 0;
   usize i = c->rowlen;
   while (i > 0 && (b = getc(in)) != EOF) {
-    f(c, in, out, *address, b);
+    fprintf(out, "%s", c->prefix);
+    f(c, in, out, *address, &b, 1);
     fprintf(out, "%s", c->separator);
 
     // does the frame end here?

@@ -6,7 +6,7 @@
 
 typedef struct Config Config;
 
-typedef void (*DumpMode)(Config *, FILE *, FILE *, usize, u8);
+typedef usize (*DumpMode)(Config *, FILE *, FILE *, usize, u8*, usize);
 
 FILE *open_input(char *path);
 
@@ -14,9 +14,9 @@ FILE *open_output(char *path);
 
 void close(FILE *f);
 
-void dump_byte(Config *c, FILE *in, FILE *out, usize address, u8 b);
-void dump_char(Config *c, FILE *in, FILE *out, usize address, u8 b);
-void dump_char_raw(Config *c, FILE *in, FILE *out, usize address, u8 b);
+usize dump_byte(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize);
+usize dump_char(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize);
+usize dump_char_raw(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize);
 
 void dump(Config *c, FILE *in, FILE *out, DumpMode f);
 

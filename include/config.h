@@ -24,7 +24,10 @@ typedef struct Config {
 
   DumpMode mode;
 
+  char *prefix;
   char *separator;
+
+  char *buffer;
 
   Error err;
 } Config;
@@ -33,6 +36,8 @@ extern Config config;
 extern SclAlloc alloc;
 
 Config config_init();
+
+void config_set_rowlen(Config *c, usize len);
 
 void config_free(Config *c);
 
