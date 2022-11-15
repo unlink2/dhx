@@ -6,7 +6,6 @@
 #include "error.h"
 #include "dump.h"
 
-
 typedef struct Config {
   char *in_path;
 
@@ -17,14 +16,17 @@ typedef struct Config {
 
   char *highlight;
   char *unhighlight;
-  
+
   bool no_addr;
 
   usize rowlen;
 
   DumpMode mode;
 
+  char *prefix;
   char *separator;
+
+  u8 *buffer;
 
   Error err;
 } Config;
@@ -33,6 +35,8 @@ extern Config config;
 extern SclAlloc alloc;
 
 Config config_init();
+
+void config_set_rowlen(Config *c, usize len);
 
 void config_free(Config *c);
 

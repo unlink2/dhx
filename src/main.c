@@ -24,6 +24,7 @@ typedef enum LongOptions {
   RAW_OUT = 128,
   NO_ADDRESS,
   SEPARATOR,
+  PREFIX
 } LongOptions;
 
 static struct argp_option options[] = {
@@ -35,6 +36,7 @@ static struct argp_option options[] = {
     {"raw", RAW_OUT, NULL, 0, "Output each byte unencoded"},
     {"no-addr", NO_ADDRESS, NULL, 0, "Do not display addresses"},
     {"separator", SEPARATOR, "SEPARATOR", 0, "Byte separator"},
+    {"prefix", PREFIX, "PREFIX", 0, "Byte prefix"},
     {"unhighlight", 'u', "UNHIGHLIGHT", 0, "Set unhighlight escape code"},
     {"rowlen", 'r', "ROWLEN", 0, "How many bytes to display in each row"},
     {0}};
@@ -66,6 +68,7 @@ static error_t parse_opt(int key, char *arg,
   } break;
   case 't':
     cfg->mode = dump_char;
+    break;
   case 'u':
     cfg->unhighlight = arg;
     break;
@@ -73,8 +76,8 @@ static error_t parse_opt(int key, char *arg,
     cfg->highlight = arg;
     break;
   case 'r':
-    cfg->rowlen =
-        str_to_i64(str_init(arg, scl_strlen(arg)), 10, (SclError *)&cfg->err);
+    config_set_rowlen(cfg, str_to_i64(str_init(arg, scl_strlen(arg)), 10,
+                                      (SclError *)&cfg->err));
     break;
   case RAW_OUT:
     cfg->mode = dump_char_raw;
@@ -84,6 +87,9 @@ static error_t parse_opt(int key, char *arg,
     break;
   case SEPARATOR:
     cfg->separator = arg;
+    break;
+  case PREFIX:
+    cfg->prefix = arg;
     break;
   case ARGP_KEY_ARG:
     if (state->arg_num > 0) {
