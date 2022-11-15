@@ -6,7 +6,6 @@
 #include "error.h"
 #include "dump.h"
 
-
 typedef struct Config {
   char *in_path;
 
@@ -17,7 +16,7 @@ typedef struct Config {
 
   char *highlight;
   char *unhighlight;
-  
+
   bool no_addr;
 
   usize rowlen;
@@ -27,7 +26,7 @@ typedef struct Config {
   char *prefix;
   char *separator;
 
-  char *buffer;
+  u8 *buffer;
 
   Error err;
 } Config;

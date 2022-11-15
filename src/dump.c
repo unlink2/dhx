@@ -22,7 +22,8 @@ void close(FILE *f) {
   }
 }
 
-usize dump_byte(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len) {
+usize dump_byte(Config *c, FILE *in, FILE *out, usize address, u8 *b,
+                usize len) {
   u8 fb = b[0];
   if (addr_list_contains(&c->addrs, address)) {
     fprintf(out, "%s%02x%s", c->highlight, fb, c->unhighlight);
@@ -33,7 +34,8 @@ usize dump_byte(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len)
   return 1;
 }
 
-usize dump_char_adv(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len, bool raw) {
+usize dump_char_adv(Config *c, FILE *in, FILE *out, usize address, u8 *b,
+                    usize len, bool raw) {
   char fb = b[0];
   if (!isprint(fb) && !raw) {
     fb = '.';
@@ -47,44 +49,65 @@ usize dump_char_adv(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize 
   return 1;
 }
 
-usize dump_char(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len) {
+usize dump_char(Config *c, FILE *in, FILE *out, usize address, u8 *b,
+                usize len) {
   return dump_char_adv(c, in, out, address, b, len, FALSE);
 }
 
-usize dump_char_raw(Config *c, FILE *in, FILE *out, usize address, u8 *b, usize len) {
+usize dump_char_raw(Config *c, FILE *in, FILE *out, usize address, u8 *b,
+                    usize len) {
   return dump_char_adv(c, in, out, address, b, len, TRUE);
 }
 
-u32 dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f) {
-  if (!c->no_addr) {
-    fprintf(out, "%08zx\t", *address);
+void dump_addr_label(Config *c, FILE *out, usize address, usize *rowlen) {
+  if (*rowlen >= c->rowlen) {
+    *rowlen = 0;
   }
-  u32 b = 0;
-  usize i = c->rowlen;
-  while (i > 0 && (b = getc(in)) != EOF) {
+  if (!c->no_addr && *rowlen == 0) {
+    if (address != c->base_addr) {
+      // only add a new line when we are not at the beginning
+      fprintf(out, "\n");
+    }
+    fprintf(out, "%08zx\t", address);
+  }
+}
+
+usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
+               u8 *b, usize len, usize *rowlen) {
+  usize written = 0;
+
+  for (usize i = 0; i < len;) {
+    dump_addr_label(c, out, *address, rowlen);
+
+    u8 *fb = b + i;
     fprintf(out, "%s", c->prefix);
-    f(c, in, out, *address, &b, 1);
+    usize w = f(c, in, out, *address, fb, 1);
+    i += w;
+    written += w;
+    *rowlen += w;
     fprintf(out, "%s", c->separator);
 
     // does the frame end here?
     if (addr_list_contains(&c->frames, *address)) {
-      (*address)++;
-      break;
+      *rowlen = 0;
     }
 
     (*address)++;
-    i--;
   }
 
-  return b;
+  return written;
 }
 
 void dump(Config *c, FILE *in, FILE *out, DumpMode f) {
   usize address = c->base_addr;
 
-  while (dump_row(c, in, out, &address, f) != EOF) {
-    fprintf(out, "\n");
+  usize rowlen = 0;
+  usize read = 0;
+
+  while ((read = fread(c->buffer, 1, c->rowlen, in)) > 0) {
+    dump_row(c, in, out, &address, f, c->buffer, read, &rowlen);
   }
+  
 
   fprintf(out, "\n");
 }

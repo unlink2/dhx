@@ -68,6 +68,7 @@ static error_t parse_opt(int key, char *arg,
   } break;
   case 't':
     cfg->mode = dump_char;
+    break;
   case 'u':
     cfg->unhighlight = arg;
     break;
@@ -75,8 +76,8 @@ static error_t parse_opt(int key, char *arg,
     cfg->highlight = arg;
     break;
   case 'r':
-    config_set_rowlen(cfg, 
-        str_to_i64(str_init(arg, scl_strlen(arg)), 10, (SclError *)&cfg->err));
+    config_set_rowlen(cfg, str_to_i64(str_init(arg, scl_strlen(arg)), 10,
+                                      (SclError *)&cfg->err));
     break;
   case RAW_OUT:
     cfg->mode = dump_char_raw;
