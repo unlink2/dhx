@@ -6,7 +6,7 @@
 #include "error.h"
 #include "dump.h"
 
-typedef enum Endianess { END_LITTLE, END_BIG } Endianess;
+typedef enum Endianess { END_LITTLE, END_BIG, END_NATIVE } Endianess;
 
 Endianess end_map(const char *inp);
 

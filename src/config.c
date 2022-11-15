@@ -14,8 +14,8 @@ Endianess end_map(const char *inp) {
     return END_BIG;
   }
 
-  scl_log_error("Unknown endianess: %s. Defaulting to little!\n", inp);
-  return END_LITTLE;
+  scl_log_error("Unknown endianess: %s. Defaulting to native!\n", inp);
+  return END_NATIVE;
 }
 
 OutputGroup og_map(const char *inp) {
@@ -48,7 +48,7 @@ Config config_init() {
               "",
               " ",
               malloc(default_row_len),
-              END_LITTLE,
+              END_NATIVE,
               OG_1,
               OK};
   alloc = scl_alloc_init(malloc, free);

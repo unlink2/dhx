@@ -1,6 +1,7 @@
 #include "dump.h"
 #include "config.h"
 #include <ctype.h>
+#include <endian.h>
 
 FILE *open_input(char *path) {
   if (path) {
@@ -22,12 +23,81 @@ void close(FILE *f) {
   }
 }
 
-usize dump_byte(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-                usize len) {
+usize dump_gp1(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
+               usize len) {
   u8 fb = b[0];
   fprintf(out, "%02x", fb);
 
   return 1;
+}
+
+usize dump_gp2(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
+               usize len) {
+  if (len < 2) {
+    return dump_gp1(c, in, out, address, b, len);
+  }
+
+  u16 fb = *(u16 *)b;
+  if (c->endianess == END_LITTLE) {
+    fb = htole16(fb);
+  } else if (c->endianess == END_BIG) {
+    fb = htobe16(fb);
+  }
+  fprintf(out, "%04x", fb);
+
+  return 2;
+}
+
+usize dump_gp4(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
+               usize len) {
+  if (len < 4) {
+    return dump_gp2(c, in, out, address, b, len);
+  }
+
+  u32 fb = *(u32 *)b;
+  if (c->endianess == END_LITTLE) {
+    fb = htole32(fb);
+  } else if (c->endianess == END_BIG) {
+    fb = htobe32(fb);
+  }
+
+  fprintf(out, "%08x", fb);
+
+  return 4;
+}
+
+usize dump_gp8(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
+               usize len) {
+  if (len < 8) {
+    return dump_gp4(c, in, out, address, b, len);
+  }
+
+  u64 fb = *(u64 *)b;
+  if (c->endianess == END_LITTLE) {
+    fb = htole64(fb);
+  } else if (c->endianess == END_BIG) {
+    fb = htobe64(fb);
+  }
+  fprintf(out, "%016llx", fb);
+
+  return 8;
+}
+
+usize dump_byte(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
+                usize len) {
+  switch (c->output_grp) {
+  case OG_2:
+    return dump_gp2(c, in, out, address, b, len);
+  case OG_4:
+    return dump_gp4(c, in, out, address, b, len);
+  case OG_8:
+    return dump_gp8(c, in, out, address, b, len);
+  case OG_1:
+  default:
+    return dump_gp1(c, in, out, address, b, len);
+  }
+
+  return 0;
 }
 
 usize dump_char_adv(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
@@ -78,7 +148,7 @@ usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
     if (addr_contained) {
       fprintf(out, "%s", c->highlight);
     }
-    usize w = f(c, in, out, *address, fb, 1);
+    usize w = f(c, in, out, *address, fb, len - written);
     if (addr_contained) {
       fprintf(out, "%s", c->unhighlight);
     }
@@ -93,7 +163,7 @@ usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
       *rowlen = 0;
     }
 
-    (*address)++;
+    (*address) += w;
   }
 
   return written;
