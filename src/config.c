@@ -72,6 +72,8 @@ Config config_init() {
               OUT_FMT_8H,
               END_NATIVE,
               OG_1H,
+              0,
+              -1,
               OK};
   alloc = scl_alloc_init(malloc, free);
 

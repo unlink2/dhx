@@ -74,6 +74,9 @@ typedef struct Config {
   Endianess endianess;
   OutputGroup output_grp;
 
+  usize start_addr;
+  usize end_addr;
+
   Error err;
 } Config;
 

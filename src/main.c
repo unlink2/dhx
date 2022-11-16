@@ -20,7 +20,13 @@ const char *argp_program_bug_address = "<lukas@krickl.dev>";
 static char doc[] = "stvi";
 static char args_doc[] = "Stack Dump Visualizer";
 
-typedef enum LongOptions { NO_ADDRESS = 128, SEPARATOR, PREFIX } LongOptions;
+typedef enum LongOptions {
+  NO_ADDRESS = 128,
+  SEPARATOR,
+  PREFIX,
+  START,
+  END
+} LongOptions;
 
 static struct argp_option options[] = {
     {"address", 'a', "ADDRESS", 0, "Address to filter for"},
@@ -38,6 +44,8 @@ static struct argp_option options[] = {
     {"group", 'g', "GROUP", 0,
      "How to group and format output bytes (1h, 1d, 1b, 2h, 2d, 4h, 4d, "
      "8h, 8d, c, r)"},
+    {"start", START, "START", 0, "Start address"},
+    {"end", END, "END", 0, "End address"},
     {0}};
 
 static error_t parse_opt(int key, char *arg,
@@ -82,6 +90,14 @@ static error_t parse_opt(int key, char *arg,
     break;
   case PREFIX:
     cfg->prefix = arg;
+    break;
+  case START:
+    cfg->start_addr =
+        str_to_i64(str_init(arg, scl_strlen(arg)), 16, (SclError *)&cfg->err);
+    break;
+  case END:
+    cfg->end_addr =
+        str_to_i64(str_init(arg, scl_strlen(arg)), 16, (SclError *)&cfg->err);
     break;
   case 'l':
     scl_log_set_level(

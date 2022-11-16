@@ -186,6 +186,10 @@ usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
     }
 
     (*address) += w;
+
+    if (*address >= c->end_addr) {
+      break;
+    }
   }
 
   return written;
@@ -193,11 +197,19 @@ usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
 
 void dump(Config *c, FILE *in, FILE *out, DumpMode f) {
   usize address = c->base_addr;
-
-  usize rowlen = 0;
   usize read = 0;
 
+  // skip until we reach start address
+  while (address < c->start_addr && (read = fread(c->buffer, 1, 1, in)) > 0) {
+    address++;
+  }
+
+  usize rowlen = 0;
+
   while ((read = fread(c->buffer, 1, c->rowlen, in)) > 0) {
+    if (address >= c->end_addr) {
+      break;
+    }
     dump_row(c, in, out, &address, f, c->buffer, read, &rowlen);
   }
 
