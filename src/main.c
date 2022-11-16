@@ -36,7 +36,7 @@ static struct argp_option options[] = {
     {"endianess", 'e', "ENDIANESS", 0, "Set file endianess"},
     {"loglevel", 'l', "LEVEL", 0, "Log level"},
     {"group", 'g', "GROUP", 0,
-     "How to group and format output bytes (1h, 1d, 2h, 2d, 4h, 4d, "
+     "How to group and format output bytes (1h, 1d, 1b, 2h, 2d, 4h, 4d, "
      "8h, 8d, c, r)"},
     {0}};
 

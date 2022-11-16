@@ -39,9 +39,10 @@ OutputGroup og_map(const char *inp) {
     return OG_CHAR;
   } else if (strncmp(inp, "r", scl_strlen("r")) == 0) {
     return OG_RAW;
-  } /* else if (strncmp(inp, "1b", scl_strlen("1b")) == 0) {
+  } else if (strncmp(inp, "1b", scl_strlen("1b")) == 0) {
     return OG_1B;
-  } else if (strncmp(inp, "2b", scl_strlen("2b")) == 0) {
+  }
+  /* else if (strncmp(inp, "2b", scl_strlen("2b")) == 0) {
     return OG_2B;
   } else if (strncmp(inp, "4b", scl_strlen("4b")) == 0) {
     return OG_4B;
@@ -118,6 +119,9 @@ void config_apply_mode(Config *c, OutputGroup g) {
     break;
   case OG_8D:
     c->out_fmt = OUT_FMT_8D;
+    break;
+  case OG_1B:
+    c->out_fmt = OUT_FMT_1B;
     break;
   default:
     break;

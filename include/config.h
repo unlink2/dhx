@@ -18,6 +18,8 @@
 #define OUT_FMT_4D "%010ld"
 #define OUT_FMT_8D "%020lld"
 
+#define OUT_FMT_1B ""
+
 typedef enum Endianess { END_LITTLE, END_BIG, END_NATIVE } Endianess;
 
 Endianess end_map(const char *inp);
@@ -25,7 +27,7 @@ Endianess end_map(const char *inp);
 typedef enum OutputGroup {
   OG_1H,
   OG_1D,
-  // OG_1B,
+  OG_1B,
 
   OG_2H,
   OG_2D,

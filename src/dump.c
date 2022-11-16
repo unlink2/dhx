@@ -23,6 +23,22 @@ void close(FILE *f) {
   }
 }
 
+usize dump_gp1b(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
+                usize len) {
+  u8 fb = b[0];
+
+  for (usize i = 8; i > 0; i--) {
+    bool bit = (fb & (u8)((u8)1 << (i - 1)));
+    if (bit) {
+      fprintf(out, "1");
+    } else {
+      fprintf(out, "0");
+    }
+  }
+
+  return 1;
+}
+
 usize dump_gp1(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
                usize len) {
   u8 fb = b[0];
@@ -95,6 +111,8 @@ usize dump_byte(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   case OG_8H:
   case OG_8D:
     return dump_gp8(c, in, out, address, b, len);
+  case OG_1B:
+    return dump_gp1b(c, in, out, address, b, len);
   case OG_1H:
   case OG_1D:
   default:
