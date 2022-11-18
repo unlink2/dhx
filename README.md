@@ -14,7 +14,6 @@
 
 ## Installation
 
-
 ## Usage
 
 ## License
@@ -27,15 +26,4 @@ All contributions are welcome.
 Both pull requests and issue reports are always appreciated.
 Please make sure that all existing tests pass before submitting a pull request.
 
-## Style
-
-- Macros and constants: MAX_SIZE
-- Enums: MyEnum
-- Enum Values: MYENUM_VALUE1
-- Structs and Typedefs: MyStruct
-- Functions: my_function()
-- Internal functions: my_internal_function_()
-
 ## TODO
-
-- Replace stvi with project name in README.md and makefile

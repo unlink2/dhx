@@ -1,0 +1,18 @@
+[package]
+name = "stvi"
+version = "0.1.0"
+edition = "2021"
+author = "Lukas Krickl <lukas@krickl.dev>"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "stvi"
+path = "src/lib/lib.rs"
+
+[[bin]]
+name = "stvi"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.0.26", features = ["derive"] }
+thiserror = "1.0.37"
