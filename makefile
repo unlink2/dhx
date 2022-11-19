@@ -115,6 +115,18 @@ lint:
 clean:
 	rm -rf $(BUILD_DIR)
 
+.PHONY: setup
+setup:
+	make getmods
+
+# get submodules
+.PHONY: getmods
+getmods:
+	git submodule update --recursive --remote
+.PHONY: updatemods
+updatemods:	
+	git pull --recurse-submodules
+
 # installs the binary, shared library or static library  
 .PHONY: install 
 install:
