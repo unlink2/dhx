@@ -6,7 +6,8 @@
 typedef enum Error {
   OK,
   ERR_BAD_FORMAT = SCL_ERR_LEN,
-  ERR_FILE_NOT_FOUND
+  ERR_FILE_NOT_FOUND,
+  ERR_OUT_OF_BOUNDS
 } Error;
 
 char *error_to_string(Error e);

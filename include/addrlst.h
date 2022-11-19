@@ -1,6 +1,7 @@
 #ifndef ADDRLST_H_
 #define ADDRLST_H_
 
+#include "error.h"
 #include "scl/types.h"
 
 #define ADDR_MAX 256
@@ -14,7 +15,7 @@ typedef struct AddrList {
 AddrList addr_list_init();
 
 void addr_list_add(AddrList *l, usize addr);
-usize addr_list_get(AddrList *l, usize idx);
+usize addr_list_get(AddrList *l, usize idx, Error *e);
 
 bool addr_list_contains(AddrList *l, usize addr);
 

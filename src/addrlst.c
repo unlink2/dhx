@@ -19,10 +19,11 @@ void addr_list_add(AddrList *l, usize addr) {
   l->len++;
 }
 
-usize addr_list_get(AddrList *l, usize idx) {
+usize addr_list_get(AddrList *l, usize idx, Error *e) {
   if (idx < l->len) {
     return l->addrs[idx];
   }
+  *e = ERR_OUT_OF_BOUNDS;
   scl_log_error("Out of bounds address read");
   return 0;
 }
