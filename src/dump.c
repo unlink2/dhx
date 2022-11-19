@@ -183,6 +183,7 @@ usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
     // does the frame end here?
     if (addr_list_contains(&c->frames, *address)) {
       *rowlen = 0;
+      fprintf(out, "%s", c->frame_separator);
     }
 
     (*address) += w;
