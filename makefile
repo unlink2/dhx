@@ -1,5 +1,5 @@
-NAME := stvi
-TARGET_EXEC := stvi
+NAME := dhx
+TARGET_EXEC := dhx
 TEST_EXEC := test
 CC=gcc
 

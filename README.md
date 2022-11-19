@@ -1,8 +1,8 @@
 
-# stvi
+# dhx
 
-![](https://github.com/unlink2/stvi/actions/workflows/build.yml/badge.svg)
-![](https://github.com/unlink2/stvi/actions/workflows/test.yml/badge.svg)
+![](https://github.com/unlink2/dhx/actions/workflows/build.yml/badge.svg)
+![](https://github.com/unlink2/dhx/actions/workflows/test.yml/badge.svg)
 
 ## Table of content
 
@@ -38,4 +38,4 @@ Please make sure that all existing tests pass before submitting a pull request.
 
 ## TODO
 
-- Replace stvi with project name in README.md and makefile
+- Replace dhx with project name in README.md and makefile
