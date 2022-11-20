@@ -26,7 +26,6 @@ typedef enum LongOptions {
   PREFIX,
   START,
   END,
-  FRAME_SEPARATOR
 } LongOptions;
 
 static struct argp_option options[] = {
@@ -47,7 +46,6 @@ static struct argp_option options[] = {
      "8h, 8d, c, r)"},
     {"start", START, "START", 0, "Start address"},
     {"end", END, "END", 0, "End address"},
-    {"frame-end", FRAME_SEPARATOR, "SEPARATOR", 0, "Frame separator"},
     {0}};
 
 static error_t parse_opt(int key, char *arg,
@@ -100,9 +98,6 @@ static error_t parse_opt(int key, char *arg,
   case END:
     cfg->end_addr =
         str_to_i64(str_init(arg, scl_strlen(arg)), 16, (SclError *)&cfg->err);
-    break;
-  case FRAME_SEPARATOR:
-    cfg->frame_separator = arg;
     break;
   case 'l':
     scl_log_set_level(

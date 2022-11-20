@@ -77,8 +77,6 @@ typedef struct Config {
   usize start_addr;
   usize end_addr;
 
-  char *frame_separator;
-  
   Error err;
 } Config;
 
