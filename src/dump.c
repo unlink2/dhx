@@ -143,16 +143,20 @@ usize dump_char_raw(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   return dump_char_adv(c, in, out, address, b, len, TRUE);
 }
 
-void dump_addr_label(Config *c, FILE *out, usize address, usize *rowlen) {
+void dump_next_line(Config *c, FILE *out, usize address, usize *rowlen) {
   if (*rowlen >= c->rowlen) {
     *rowlen = 0;
   }
-  if (!c->no_addr && *rowlen == 0) {
-    if (address != c->base_addr) {
-      // only add a new line when we are not at the beginning
-      fprintf(out, "\n");
-    }
-    fprintf(out, "%08zx%s", address, c->separator);
+
+  if (address != c->base_addr && *rowlen == 0) {
+    // only add a new line when we are not at the beginning
+    fprintf(out, "\n");
+  }
+}
+
+void dump_addr_label(Config *c, FILE *out, usize address, usize rowlen) {
+  if (!c->no_addr && rowlen == 0) {
+    fprintf(out, "%016zx%s", address, c->separator);
   }
 }
 
@@ -161,7 +165,8 @@ usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
   usize written = 0;
 
   for (usize i = 0; i < len;) {
-    dump_addr_label(c, out, *address, rowlen);
+    dump_next_line(c, out, *address, rowlen);
+    dump_addr_label(c, out, *address, *rowlen);
 
     u8 *fb = b + i;
     fprintf(out, "%s", c->prefix);
