@@ -159,15 +159,22 @@ void dump_addr_label(Config *c, Context *ctx, FILE *out) {
   }
 }
 
+// dumps exactly one row and calls all corresponding hooks
 usize dump_row(Config *c, Context *ctx, FILE *in, FILE *out, DumpMode f) {
   usize written = 0;
+  c->hooks.on_line_start(c, ctx, in, out);
 
   // reset buffer to start
   ctx->buffer = ctx->buffer_start;
   ctx->row_wr = 0;
   ctx->line_wr = 0;
 
-  for (usize i = 0; i < ctx->len;) {
+  // restart output from last written counter
+  // this should be set to 0 before calling
+  // when new data is fetched.
+  // it should be left unchanged when an early bail occurs
+  // e.g. due to a frame end
+  for (usize i = ctx->written; i < ctx->len;) {
     dump_next_line(c, ctx, out);
     dump_addr_label(c, ctx, out);
 
@@ -190,15 +197,21 @@ usize dump_row(Config *c, Context *ctx, FILE *in, FILE *out, DumpMode f) {
 
     // does the frame end here?
     if (addr_list_contains(&c->frames, ctx->address)) {
+      // if so we end the row, increment the address and bail
       ctx->rowlen = 0;
+      ctx->address += w;
+      break;
     }
 
     ctx->address += w;
 
+    // end of dump region?
     if (ctx->address >= c->end_addr) {
       break;
     }
   }
+
+  c->hooks.on_line_end(c, ctx, in, out);
 
   return written;
 }
@@ -218,11 +231,16 @@ void dump(Config *c, FILE *in, FILE *out, DumpMode f) {
   }
 
   while ((ctx.len = fread(ctx.buffer_start, 1, c->rowlen, in)) > 0) {
-    if (ctx.address >= c->end_addr) {
-      break;
+    // reset written counter
+    ctx.written = 0;
+    while (ctx.written < ctx.len) {
+      if (ctx.address >= c->end_addr) {
+        goto dump_end_reached;
+      }
+      ctx.written += dump_row(c, &ctx, in, out, f);
     }
-    dump_row(c, &ctx, in, out, f);
   }
+dump_end_reached:
 
   ctx_line_wr(&ctx, fprintf(out, "\n"));
 

@@ -19,7 +19,12 @@ typedef struct Context {
   // to allow drawing boxes 
   usize line_wr;
   usize row_wr; 
-      
+
+  // a keeps track of the total 
+  // bytes written in the written counter 
+  // that way it can be interrupted by a frame 
+  // break
+  usize written;        
   usize address;
   usize rowlen;
 } Context;
