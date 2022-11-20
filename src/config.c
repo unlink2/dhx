@@ -68,7 +68,6 @@ Config config_init() {
               dump_byte,
               "",
               " ",
-              malloc(default_row_len),
               OUT_FMT_8H,
               END_NATIVE,
               OG_1H,
@@ -80,11 +79,7 @@ Config config_init() {
   return c;
 }
 
-void config_set_rowlen(Config *c, usize len) {
-  alloc.free(c->buffer);
-  c->buffer = malloc(len);
-  c->rowlen = len;
-}
+void config_set_rowlen(Config *c, usize len) { c->rowlen = len; }
 
 void config_apply_mode(Config *c, OutputGroup g) {
   c->output_grp = g;
@@ -133,5 +128,4 @@ void config_apply_mode(Config *c, OutputGroup g) {
 void config_free(Config *c) {
   addr_list_free(&c->addrs);
   addr_list_free(&c->addrs);
-  alloc.free(c->buffer);
 }

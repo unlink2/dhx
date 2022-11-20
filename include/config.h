@@ -3,6 +3,7 @@
 
 #include <scl/sclalloc.h>
 #include "addrlst.h"
+#include "ctx.h"
 #include "error.h"
 #include "dump.h"
 
@@ -66,8 +67,6 @@ typedef struct Config {
 
   char *prefix;
   char *separator;
-
-  u8 *buffer;
 
   char *out_fmt;
 
