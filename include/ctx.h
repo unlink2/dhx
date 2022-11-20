@@ -10,6 +10,9 @@ typedef struct Context {
   usize current_row_len;
   usize current_col_len;
   u8 *buffer;
+  
+  usize address;
+  usize rowlen;
 } Context;
 
 Context ctx_init();
