@@ -73,6 +73,8 @@ Config config_init() {
               OG_1H,
               0,
               -1,
+              dump_hooks_init(dump_hook_nop, dump_hook_nop, dump_hook_nop,
+                              dump_hook_nop),
               OK};
   alloc = scl_alloc_init(malloc, free);
 

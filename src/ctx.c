@@ -18,6 +18,10 @@ Context ctx_init_buffer(usize len) {
   return ctx;
 }
 
+void ctx_line_wr(Context *ctx, usize n) { ctx->line_wr += n; }
+
+void ctx_row_wr(Context *ctx, usize n) { ctx->row_wr += n; }
+
 void ctx_free(Context *ctx) {
   if (ctx->buffer_start) {
     alloc.free(ctx->buffer_start);

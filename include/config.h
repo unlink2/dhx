@@ -76,6 +76,8 @@ typedef struct Config {
   usize start_addr;
   usize end_addr;
 
+  DumpHooks hooks;
+  
   Error err;
 } Config;
 

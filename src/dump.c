@@ -3,6 +3,14 @@
 #include <ctype.h>
 #include <endian.h>
 
+DumpHooks dump_hooks_init(DumpHook ls, DumpHook le, DumpHook rs, DumpHook re) {
+  DumpHooks hooks = {ls, le, rs, re};
+
+  return hooks;
+}
+
+void dump_hook_nop(Config *c, Context *ctx, FILE *in, FILE *out) {}
+
 FILE *open_input(char *path) {
   if (path) {
     return fopen(path, "rbe");
@@ -29,9 +37,9 @@ usize dump_gp1b(Config *c, Context *ctx, FILE *in, FILE *out) {
   for (usize i = 8; i > 0; i--) {
     bool bit = (fb & (u8)((u8)1 << (i - 1)));
     if (bit) {
-      fprintf(out, "1");
+      ctx_row_wr(ctx, fprintf(out, "1"));
     } else {
-      fprintf(out, "0");
+      ctx_row_wr(ctx, fprintf(out, "0"));
     }
   }
 
@@ -40,7 +48,7 @@ usize dump_gp1b(Config *c, Context *ctx, FILE *in, FILE *out) {
 
 usize dump_gp1(Config *c, Context *ctx, FILE *in, FILE *out) {
   u8 fb = ctx->buffer[0];
-  fprintf(out, c->out_fmt, fb);
+  ctx_row_wr(ctx, fprintf(out, c->out_fmt, fb));
 
   return 1;
 }
@@ -56,7 +64,7 @@ usize dump_gp2(Config *c, Context *ctx, FILE *in, FILE *out) {
   } else if (c->endianess == END_BIG) {
     fb = htobe16(fb);
   }
-  fprintf(out, c->out_fmt, fb);
+  ctx_row_wr(ctx, fprintf(out, c->out_fmt, fb));
 
   return 2;
 }
@@ -73,7 +81,7 @@ usize dump_gp4(Config *c, Context *ctx, FILE *in, FILE *out) {
     fb = htobe32(fb);
   }
 
-  fprintf(out, c->out_fmt, fb);
+  ctx_row_wr(ctx, fprintf(out, c->out_fmt, fb));
 
   return 4;
 }
@@ -89,7 +97,7 @@ usize dump_gp8(Config *c, Context *ctx, FILE *in, FILE *out) {
   } else if (c->endianess == END_BIG) {
     fb = htobe64(fb);
   }
-  fprintf(out, c->out_fmt, fb);
+  ctx_row_wr(ctx, fprintf(out, c->out_fmt, fb));
 
   return 8;
 }
@@ -122,7 +130,7 @@ usize dump_char_adv(Config *c, Context *ctx, FILE *in, FILE *out, bool raw) {
     fb = '.';
   }
 
-  fprintf(out, c->out_fmt, fb);
+  ctx_row_wr(ctx, fprintf(out, c->out_fmt, fb));
   return 1;
 }
 
@@ -141,13 +149,13 @@ void dump_next_line(Config *c, Context *ctx, FILE *out) {
 
   if (ctx->address != c->base_addr && ctx->rowlen == 0) {
     // only add a new line when we are not at the beginning
-    fprintf(out, "\n");
+    ctx_line_wr(ctx, fprintf(out, "\n"));
   }
 }
 
 void dump_addr_label(Config *c, Context *ctx, FILE *out) {
   if (!c->no_addr && ctx->rowlen == 0) {
-    fprintf(out, "%016zx%s", ctx->address, c->separator);
+    ctx_row_wr(ctx, fprintf(out, "%016zx%s", ctx->address, c->separator));
   }
 }
 
@@ -156,27 +164,29 @@ usize dump_row(Config *c, Context *ctx, FILE *in, FILE *out, DumpMode f) {
 
   // reset buffer to start
   ctx->buffer = ctx->buffer_start;
+  ctx->row_wr = 0;
+  ctx->line_wr = 0;
 
   for (usize i = 0; i < ctx->len;) {
     dump_next_line(c, ctx, out);
     dump_addr_label(c, ctx, out);
 
     ctx->buffer = ctx->buffer_start + i;
-    fprintf(out, "%s", c->prefix);
+    ctx_row_wr(ctx, fprintf(out, "%s", c->prefix));
 
     bool addr_contained = addr_list_contains(&c->addrs, ctx->address);
     if (addr_contained) {
-      fprintf(out, "%s", c->highlight);
+      ctx_row_wr(ctx, fprintf(out, "%s", c->highlight));
     }
     usize w = f(c, ctx, in, out);
     if (addr_contained) {
-      fprintf(out, "%s", c->unhighlight);
+      ctx_row_wr(ctx, fprintf(out, "%s", c->unhighlight));
     }
 
     i += w;
     written += w;
     ctx->rowlen += w;
-    fprintf(out, "%s", c->separator);
+    ctx_row_wr(ctx, fprintf(out, "%s", c->separator));
 
     // does the frame end here?
     if (addr_list_contains(&c->frames, ctx->address)) {
@@ -214,7 +224,7 @@ void dump(Config *c, FILE *in, FILE *out, DumpMode f) {
     dump_row(c, &ctx, in, out, f);
   }
 
-  fprintf(out, "\n");
+  ctx_line_wr(&ctx, fprintf(out, "\n"));
 
   // clean up the context to
   // ensure we are not leaking anything

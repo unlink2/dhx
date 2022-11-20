@@ -8,6 +8,17 @@
 typedef struct Config Config;
 
 typedef usize (*DumpMode)(Config *, Context *, FILE *, FILE *);
+typedef void (*DumpHook)(Config *, Context *, FILE *, FILE *);
+
+typedef struct DumpHooks {
+  DumpHook on_line_start;
+  DumpHook on_line_end;
+  DumpHook on_row_start;
+  DumpHook on_row_end;
+} DumpHooks;
+
+DumpHooks dump_hooks_init(DumpHook ls, DumpHook le, DumpHook rs, DumpHook re);
+void dump_hook_nop(Config *c, Context *ctx, FILE *in, FILE *out);
 
 FILE *open_input(char *path);
 
