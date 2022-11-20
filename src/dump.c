@@ -23,9 +23,8 @@ void close(FILE *f) {
   }
 }
 
-usize dump_gp1b(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-                usize len) {
-  u8 fb = b[0];
+usize dump_gp1b(Config *c, Context *ctx, FILE *in, FILE *out) {
+  u8 fb = ctx->buffer[0];
 
   for (usize i = 8; i > 0; i--) {
     bool bit = (fb & (u8)((u8)1 << (i - 1)));
@@ -39,21 +38,19 @@ usize dump_gp1b(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   return 1;
 }
 
-usize dump_gp1(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-               usize len) {
-  u8 fb = b[0];
+usize dump_gp1(Config *c, Context *ctx, FILE *in, FILE *out) {
+  u8 fb = ctx->buffer[0];
   fprintf(out, c->out_fmt, fb);
 
   return 1;
 }
 
-usize dump_gp2(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-               usize len) {
-  if (len < 2) {
-    return dump_gp1(c, in, out, address, b, len);
+usize dump_gp2(Config *c, Context *ctx, FILE *in, FILE *out) {
+  if (ctx->len < 2) {
+    return dump_gp1(c, ctx, in, out);
   }
 
-  u16 fb = *(u16 *)b;
+  u16 fb = *(u16 *)ctx->buffer;
   if (c->endianess == END_LITTLE) {
     fb = htole16(fb);
   } else if (c->endianess == END_BIG) {
@@ -64,13 +61,12 @@ usize dump_gp2(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   return 2;
 }
 
-usize dump_gp4(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-               usize len) {
-  if (len < 4) {
-    return dump_gp2(c, in, out, address, b, len);
+usize dump_gp4(Config *c, Context *ctx, FILE *in, FILE *out) {
+  if (ctx->len < 4) {
+    return dump_gp2(c, ctx, in, out);
   }
 
-  u32 fb = *(u32 *)b;
+  u32 fb = *(u32 *)ctx->buffer;
   if (c->endianess == END_LITTLE) {
     fb = htole32(fb);
   } else if (c->endianess == END_BIG) {
@@ -82,13 +78,12 @@ usize dump_gp4(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   return 4;
 }
 
-usize dump_gp8(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-               usize len) {
-  if (len < 8) {
-    return dump_gp4(c, in, out, address, b, len);
+usize dump_gp8(Config *c, Context *ctx, FILE *in, FILE *out) {
+  if (ctx->len < 8) {
+    return dump_gp4(c, ctx, in, out);
   }
 
-  u64 fb = *(u64 *)b;
+  u64 fb = *(u64 *)ctx->buffer;
   if (c->endianess == END_LITTLE) {
     fb = htole64(fb);
   } else if (c->endianess == END_BIG) {
@@ -99,32 +94,30 @@ usize dump_gp8(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   return 8;
 }
 
-usize dump_byte(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-                usize len) {
+usize dump_byte(Config *c, Context *ctx, FILE *in, FILE *out) {
   switch (c->output_grp) {
   case OG_2H:
   case OG_2D:
-    return dump_gp2(c, in, out, address, b, len);
+    return dump_gp2(c, ctx, in, out);
   case OG_4H:
   case OG_4D:
-    return dump_gp4(c, in, out, address, b, len);
+    return dump_gp4(c, ctx, in, out);
   case OG_8H:
   case OG_8D:
-    return dump_gp8(c, in, out, address, b, len);
+    return dump_gp8(c, ctx, in, out);
   case OG_1B:
-    return dump_gp1b(c, in, out, address, b, len);
+    return dump_gp1b(c, ctx, in, out);
   case OG_1H:
   case OG_1D:
   default:
-    return dump_gp1(c, in, out, address, b, len);
+    return dump_gp1(c, ctx, in, out);
   }
 
   return 0;
 }
 
-usize dump_char_adv(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-                    usize len, bool raw) {
-  char fb = (char)b[0];
+usize dump_char_adv(Config *c, Context *ctx, FILE *in, FILE *out, bool raw) {
+  char fb = (char)ctx->buffer[0];
   if (!isprint(fb) && !raw) {
     fb = '.';
   }
@@ -133,66 +126,66 @@ usize dump_char_adv(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
   return 1;
 }
 
-usize dump_char(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-                usize len) {
-  return dump_char_adv(c, in, out, address, b, len, FALSE);
+usize dump_char(Config *c, Context *ctx, FILE *in, FILE *out) {
+  return dump_char_adv(c, ctx, in, out, FALSE);
 }
 
-usize dump_char_raw(Config *c, FILE *in, FILE *out, usize address, const u8 *b,
-                    usize len) {
-  return dump_char_adv(c, in, out, address, b, len, TRUE);
+usize dump_char_raw(Config *c, Context *ctx, FILE *in, FILE *out) {
+  return dump_char_adv(c, ctx, in, out, TRUE);
 }
 
-void dump_next_line(Config *c, FILE *out, usize address, usize *rowlen) {
-  if (*rowlen >= c->rowlen) {
-    *rowlen = 0;
+void dump_next_line(Config *c, Context *ctx, FILE *out) {
+  if (ctx->rowlen >= c->rowlen) {
+    ctx->rowlen = 0;
   }
 
-  if (address != c->base_addr && *rowlen == 0) {
+  if (ctx->address != c->base_addr && ctx->rowlen == 0) {
     // only add a new line when we are not at the beginning
     fprintf(out, "\n");
   }
 }
 
-void dump_addr_label(Config *c, FILE *out, usize address, usize rowlen) {
-  if (!c->no_addr && rowlen == 0) {
-    fprintf(out, "%016zx%s", address, c->separator);
+void dump_addr_label(Config *c, Context *ctx, FILE *out) {
+  if (!c->no_addr && ctx->rowlen == 0) {
+    fprintf(out, "%016zx%s", ctx->address, c->separator);
   }
 }
 
-usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
-               u8 *b, usize len, usize *rowlen) {
+usize dump_row(Config *c, Context *ctx, FILE *in, FILE *out, DumpMode f) {
   usize written = 0;
 
-  for (usize i = 0; i < len;) {
-    dump_next_line(c, out, *address, rowlen);
-    dump_addr_label(c, out, *address, *rowlen);
+  // reset buffer to start
+  ctx->buffer = ctx->buffer_start;
 
-    u8 *fb = b + i;
+  for (usize i = 0; i < ctx->len;) {
+    dump_next_line(c, ctx, out);
+    dump_addr_label(c, ctx, out);
+
+    ctx->buffer = ctx->buffer_start + i;
     fprintf(out, "%s", c->prefix);
 
-    bool addr_contained = addr_list_contains(&c->addrs, *address);
+    bool addr_contained = addr_list_contains(&c->addrs, ctx->address);
     if (addr_contained) {
       fprintf(out, "%s", c->highlight);
     }
-    usize w = f(c, in, out, *address, fb, len - written);
+    usize w = f(c, ctx, in, out);
     if (addr_contained) {
       fprintf(out, "%s", c->unhighlight);
     }
 
     i += w;
     written += w;
-    *rowlen += w;
+    ctx->rowlen += w;
     fprintf(out, "%s", c->separator);
 
     // does the frame end here?
-    if (addr_list_contains(&c->frames, *address)) {
-      *rowlen = 0;
+    if (addr_list_contains(&c->frames, ctx->address)) {
+      ctx->rowlen = 0;
     }
 
-    (*address) += w;
+    ctx->address += w;
 
-    if (*address >= c->end_addr) {
+    if (ctx->address >= c->end_addr) {
       break;
     }
   }
@@ -201,7 +194,6 @@ usize dump_row(Config *c, FILE *in, FILE *out, usize *address, DumpMode f,
 }
 
 void dump(Config *c, FILE *in, FILE *out, DumpMode f) {
-  usize read = 0;
   // reset context
   // it is only valid while
   // this function is active
@@ -211,15 +203,15 @@ void dump(Config *c, FILE *in, FILE *out, DumpMode f) {
 
   // skip until we reach start address
   while (ctx.address < c->start_addr &&
-         (read = fread(ctx.buffer, 1, 1, in)) > 0) {
+         (ctx.len = fread(ctx.buffer_start, 1, 1, in)) > 0) {
     ctx.address++;
   }
 
-  while ((read = fread(ctx.buffer, 1, c->rowlen, in)) > 0) {
+  while ((ctx.len = fread(ctx.buffer_start, 1, c->rowlen, in)) > 0) {
     if (ctx.address >= c->end_addr) {
       break;
     }
-    dump_row(c, in, out, &ctx.address, f, ctx.buffer, read, &ctx.rowlen);
+    dump_row(c, &ctx, in, out, f);
   }
 
   fprintf(out, "\n");

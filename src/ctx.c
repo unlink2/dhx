@@ -10,12 +10,16 @@ Context ctx_init() {
 
 Context ctx_init_buffer(usize len) {
   Context ctx = ctx_init();
-  ctx.buffer = alloc.malloc(len);
+  ctx.buffer_start = alloc.malloc(len);
+  ctx.buffer = ctx.buffer_start;
+
+  ctx.max_len = len;
+  ctx.len = 0;
   return ctx;
 }
 
 void ctx_free(Context *ctx) {
-  if (ctx->buffer) {
-    alloc.free(ctx->buffer);
+  if (ctx->buffer_start) {
+    alloc.free(ctx->buffer_start);
   }
 }

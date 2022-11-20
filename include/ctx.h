@@ -10,7 +10,11 @@ typedef struct Context {
   usize current_row_len;
   usize current_col_len;
   u8 *buffer;
+  u8 *buffer_start;
   
+  usize len;
+  usize max_len;
+    
   usize address;
   usize rowlen;
 } Context;
