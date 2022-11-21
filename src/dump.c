@@ -117,6 +117,9 @@ usize dump_gp8(Config *c, Context *ctx, FILE *in, FILE *out) {
   return 8;
 }
 
+// TODO get data based on the input data, read lenght and endianess
+u64 dump_get_data(Config *c, Context *ctx, FILE *in, FILE *out) { return 0; }
+
 usize dump_byte(Config *c, Context *ctx, FILE *in, FILE *out) {
   switch (c->output_grp) {
   case OG_2H:
