@@ -31,6 +31,20 @@ void close(FILE *f) {
   }
 }
 
+void dump_highlight(Config *c, Context *ctx, FILE *in, FILE *out) {
+  bool addr_contained = addr_list_contains(&c->addrs, ctx->address);
+  if (addr_contained) {
+    ctx_row_wr(ctx, fprintf(out, "%s", c->highlight));
+  }
+}
+
+void dump_unhighlight(Config *c, Context *ctx, FILE *in, FILE *out) {
+  bool addr_contained = addr_list_contains(&c->addrs, ctx->address);
+  if (addr_contained) {
+    ctx_row_wr(ctx, fprintf(out, "%s", c->unhighlight));
+  }
+}
+
 usize dump_gp1b(Config *c, Context *ctx, FILE *in, FILE *out) {
   u8 fb = ctx->buffer[0];
 
@@ -181,14 +195,9 @@ usize dump_row(Config *c, Context *ctx, FILE *in, FILE *out, DumpMode f) {
     ctx->buffer = ctx->buffer_start + i;
     ctx_row_wr(ctx, fprintf(out, "%s", c->prefix));
 
-    bool addr_contained = addr_list_contains(&c->addrs, ctx->address);
-    if (addr_contained) {
-      ctx_row_wr(ctx, fprintf(out, "%s", c->highlight));
-    }
+    dump_highlight(c, ctx, in, out);
     usize w = f(c, ctx, in, out);
-    if (addr_contained) {
-      ctx_row_wr(ctx, fprintf(out, "%s", c->unhighlight));
-    }
+    dump_unhighlight(c, ctx, in, out);
 
     i += w;
     written += w;
