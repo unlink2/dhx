@@ -3,6 +3,11 @@
 
 #include <scl/types.h>
 
+typedef enum ContextOutputState {
+  CTX_OUTPUT_NORMAL,
+  CTX_OUTPUT_HILIGHT 
+} ContextOutputState;
+
 // The context is a stateful 
 // object for keeping track of 
 // runtime state 
@@ -20,6 +25,8 @@ typedef struct Context {
   usize line_wr;
   usize row_wr; 
 
+  ContextOutputState out_state;
+  
   // a keeps track of the total 
   // bytes written in the written counter 
   // that way it can be interrupted by a frame 

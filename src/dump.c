@@ -34,14 +34,15 @@ void close(FILE *f) {
 void dump_highlight(Config *c, Context *ctx, FILE *in, FILE *out) {
   bool addr_contained = addr_list_contains(&c->addrs, ctx->address);
   if (addr_contained) {
+    ctx->out_state = CTX_OUTPUT_HILIGHT;
     ctx_row_wr(ctx, fprintf(out, "%s", c->highlight));
   }
 }
 
 void dump_unhighlight(Config *c, Context *ctx, FILE *in, FILE *out) {
-  bool addr_contained = addr_list_contains(&c->addrs, ctx->address);
-  if (addr_contained) {
+  if (ctx->out_state == CTX_OUTPUT_HILIGHT) {
     ctx_row_wr(ctx, fprintf(out, "%s", c->unhighlight));
+    ctx->out_state = CTX_OUTPUT_NORMAL;
   }
 }
 
