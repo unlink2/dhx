@@ -73,6 +73,7 @@ Config config_init() {
               OG_1H,
               0,
               -1,
+              DEFAULT_ADDR_LEN,
               dump_hooks_init(dump_hook_nop, dump_hook_nop, dump_hook_nop,
                               dump_hook_nop),
               OK};

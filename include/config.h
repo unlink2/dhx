@@ -21,6 +21,8 @@
 
 #define OUT_FMT_1B ""
 
+#define DEFAULT_ADDR_LEN 16
+
 typedef enum Endianess { END_LITTLE, END_BIG, END_NATIVE } Endianess;
 
 Endianess end_map(const char *inp);
@@ -76,6 +78,8 @@ typedef struct Config {
   usize start_addr;
   usize end_addr;
 
+  usize addr_len;
+  
   DumpHooks hooks;
   
   Error err;

@@ -172,8 +172,13 @@ void dump_next_line(Config *c, Context *ctx, FILE *out) {
 }
 
 void dump_addr_label(Config *c, Context *ctx, FILE *out) {
+  // we can set the address lenght
+  // build custom fmt string
+  char addr_fmt_str[64];
+  sprintf(addr_fmt_str, "%%0%ldzx%%s", c->addr_len);
+
   if (!c->no_addr && ctx->rowlen == 0) {
-    ctx_row_wr(ctx, fprintf(out, "%016zx%s", ctx->address, c->separator));
+    ctx_row_wr(ctx, fprintf(out, addr_fmt_str, ctx->address, c->separator));
   }
 }
 
