@@ -138,11 +138,13 @@ static error_t parse_opt(int key, char *arg,
 static struct argp argp = {options, parse_opt, args_doc, doc};
 
 int main(int argc, char **argv) {
+  scl_log_set_level(ERROR);
+
   config = config_init();
   argp_parse(&argp, argc, argv, 0, 0, &config); // NOLINT
 
-  FILE *in = open_input(config.in_path);
-  FILE *out = open_output(NULL);
+  FILE *in = dump_open_input(config.in_path);
+  FILE *out = dump_open_output(NULL);
 
   if (!in || !out) {
     config.err = ERR_FILE_NOT_FOUND;
@@ -155,8 +157,8 @@ int main(int argc, char **argv) {
     dump(&config, in, out, config.mode);
   }
 
-  close(in);
-  close(out);
+  dump_close(in);
+  dump_close(out);
 
   config_free(&config);
 

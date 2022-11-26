@@ -11,21 +11,21 @@ DumpHooks dump_hooks_init(DumpHook ls, DumpHook le, DumpHook rs, DumpHook re) {
 
 void dump_hook_nop(Config *c, Context *ctx, FILE *in, FILE *out) {}
 
-FILE *open_input(char *path) {
+FILE *dump_open_input(char *path) {
   if (path) {
     return fopen(path, "rbe");
   }
   return stdin;
 }
 
-FILE *open_output(char *path) {
+FILE *dump_open_output(char *path) {
   if (path) {
     return fopen(path, "wbe");
   }
   return stdout;
 }
 
-void close(FILE *f) {
+void dump_close(FILE *f) {
   if (f != stdin && f != stdout && f != stderr && f) {
     fclose(f);
   }

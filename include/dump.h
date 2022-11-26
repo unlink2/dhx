@@ -20,11 +20,11 @@ typedef struct DumpHooks {
 DumpHooks dump_hooks_init(DumpHook ls, DumpHook le, DumpHook rs, DumpHook re);
 void dump_hook_nop(Config *c, Context *ctx, FILE *in, FILE *out);
 
-FILE *open_input(char *path);
+FILE *dump_open_input(char *path);
 
-FILE *open_output(char *path);
+FILE *dump_open_output(char *path);
 
-void close(FILE *f);
+void dump_close(FILE *f);
 
 usize dump_byte(Config *c, Context *ctx, FILE *in, FILE *out);
 usize dump_char(Config *c, Context *ctx, FILE *in, FILE *out);
